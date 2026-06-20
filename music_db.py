@@ -66,15 +66,31 @@ cursor.executemany("""
 """, albums)
 
 connection.commit()
-cursor.execute("SELECT * FROM artist")
-artists = cursor.fetchall()
-cursor.execute("SELECT * FROM album")
-albums = cursor.fetchall()
-for artist in artists:
-    print(f"Name - {artist[1]}\nGenre - {artist[2]}\n{'Albums':^60}")
-    for album in albums:
-        if album[3] == artist[0]:
-            print(f"{album[1]:^60}")
+# previous solution I came up with. Not efficient however.
+# cursor.execute("SELECT * FROM artist")
+# artists = cursor.fetchall()
+# cursor.execute("SELECT * FROM album")
+# albums = cursor.fetchall()
+# for artist in artists:
+#     print(f"Name - {artist[1]}\nGenre - {artist[2]}\n{'Albums':^60}")
+#     for album in albums:
+#         if album[3] == artist[0]:
+#             print(f"{album[1]:^60}")
+
+print("All albums with their artist:\n")
+# JOIN is more efficient
+cursor.execute("""
+    SELECT albums.title, albums.year, artists.name, artists.genre
+    FROM albums
+    JOIN artists ON albums.artist_id = artists.id
+    ORDER BY artists.name, albums.year
+""")
+
+rows = cursor.fetchall()
+print(f"{'Album':<35} {'Year':<6} {'Artist':<20} {'Genre'}")
+print("-" * 75)
+for title, year, artist, genre in rows:
+    print(f"{title:<35} {year:<6} {artist:<20} {genre}")
 
 # close the database connection. Make me think of correctly closing a file.
 connection.close()
